@@ -1,0 +1,26 @@
+.menu-horizontal {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 60px;
+    padding: 20px;
+    border: 3px solid purple;
+    border-radius: 30px;
+    background-color: white;
+}
+
+.menu-horizontal a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 20px;
+    padding: 12px 16px;
+    border-radius: 10px; /* Bordes redondeados */
+    transition: all 0.3s ease;
+}
+
+.menu-horizontal a:hover {
+    color: white;
+    background-color: purple; /* Fondo morado al pasar */
+}
+

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Crear Usuario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="{{ url_for('static', filename='imagen2.jpeg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+</head>
+<body>
+    <div class="formulario">
+        <h1>Crear Usuario</h1>
+        <form method="POST" action="{{ url_for('crear_usuario') }}">
+            <div class="usuario">
+                <input type="text" name="usuario" required>
+                <label>Nombre de Usuario</label>
+            </div>
+            <div class="usuario">
+                <input type="password" name="contrasena" required>
+                <label>Contraseña</label>
+            </div>
+            <div class="recordar">¿Olvidó su contraseña?</div>
+            <div class="botones">
+                <button type="submit" class="boton">Crear</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
+

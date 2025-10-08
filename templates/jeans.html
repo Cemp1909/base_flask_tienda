@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Jeans</title>
+    <link rel="icon" href="{{ url_for('static', filename='imagen.jpeg') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+    <h1 style="text-align: center; color: #d63384; font-size: 36px;">
+        ¡Hola Bienvenidos al Mundo de los Jeans!
+    </h1>
+    <a href="/login" style="
+        position: absolute;
+        top: 20px;
+        right: 40px;
+        background-color: #d63384;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-family: Arial;
+        font-size: 14px;">
+        Iniciar Sesión
+    </a>
+
+    <nav class="menu-horizontal">
+        <a href="/">Inicio</a>
+        <a href="/blusones">Blusones</a>
+        <a href="/vestidos">Vestidos</a>
+        <a href="/enterizos">Enterizos</a>
+        <a href="/jeans">Jeans</a>
+        <a href="/vestidosgala">Vestidos de Gala</a>
+        <a href="/blusas">Blusas</a>
+    </nav>
+
+    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 80px; margin-top: 30px;">
+        <!-- Imagen izquierda -->
+        <div style="flex: 0 0 330px;">
+            <img src="{{ url_for('static', filename='imagen41.jpeg') }}" 
+                 alt="Imagen izquierda" 
+                 style="width: 100%; height: auto; object-fit: cover;">
+        </div>
+
+        <!-- Galería central dinámica -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; max-width: 800px;">
+            {% for jean in jeans %}
+            <div style="text-align: center;">
+                <img src="{{ url_for('static', filename=jean.imagen) }}" style="width: 100%; max-width: 100px;">
+                <ul style="list-style: none; padding: 0; margin-top: 10px; font-family: Arial;">
+                    <li><strong>Talla:</strong> {{ jean.talla }}</li>
+                    <li><strong>Color:</strong> {{ jean.color }}</li>
+                    <li><strong>Tipo:</strong> {{ jean.tipo }}</li>
+                </ul>
+                <!-- Botón Comprar -->
+                <form action="{{ url_for('comprar') }}" method="get">
+                    <input type="hidden" name="talla" value="{{ jean.talla }}">
+                    <input type="hidden" name="color" value="{{ jean.color }}">
+                    <input type="hidden" name="tipo" value="{{ jean.tipo }}">
+                    <button type="submit" style="background-color: #d63384; color: white; padding: 5px 15px; border: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">
+                        Comprar
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Imagen derecha -->
+        <div style="flex: 0 0 330px;">
+            <img src="{{ url_for('static', filename='imagen42.jpeg') }}" 
+                 alt="Imagen derecha" 
+                 style="width: 100%; height: auto; object-fit: cover;">
+        </div>
+    </div>
+</body>
+</html>
