@@ -8,7 +8,8 @@ class Blusa(db.Model):
     talla = db.Column(db.String(10))
     color = db.Column(db.String(50))
     tipo  = db.Column(db.String(20))
-
+    imagen = db.Column(db.String(100))   # ← NUEVO
+    
 class Bluson(db.Model):
     __tablename__ = 'blusones'
     id = db.Column(db.Integer, primary_key=True)

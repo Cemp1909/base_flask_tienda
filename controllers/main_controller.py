@@ -221,3 +221,87 @@ def process_payment():
 def payment_result(tx_id):
     tx = Transaction.query.filter_by(tx_id=tx_id).first_or_404()
     return render_template("payment_result.html", tx=tx)
+
+# --- RUTA TEMPORAL PARA SEMILLAR DATOS ---
+import os
+from flask import jsonify
+
+@main.route("/seed")
+def seed():
+    # Protección simple: llámala como /seed?key=tu_clave
+    key = request.args.get("key")
+    if key != os.getenv("SEED_KEY", "dev"):
+        return "Forbidden", 403
+
+    inserted = {}
+
+    # -------- BLUSONES (como tu captura) --------
+    blusones = [
+        {"talla": "XL", "color": "Rosado",         "tipo": "Blusones", "imagen": "imagen17.jpeg"},
+        {"talla": "XL", "color": "Salmon",         "tipo": "Blusones", "imagen": "imagen15.jpeg"},
+        {"talla": "XL", "color": "Blanco y Negro", "tipo": "Blusones", "imagen": "imagen18.jpeg"},
+        {"talla": "XL", "color": "Gris",           "tipo": "Blusones", "imagen": "imagen16.jpeg"},
+        {"talla": "L",  "color": "Rosado",         "tipo": "Blusones", "imagen": "imagen17.jpeg"},
+        {"talla": "M",  "color": "Salmon",         "tipo": "Blusones", "imagen": "imagen15.jpeg"},
+    ]
+    for d in blusones:
+        db.session.add(Bluson(**d))
+    inserted["blusones"] = len(blusones)
+
+    # -------- BLUSAS --------
+    blusas = [
+        {"talla": "S", "color": "Negro",  "tipo": "Blusas", "imagen": "blusa1.jpeg"},
+        {"talla": "M", "color": "Blanco", "tipo": "Blusas", "imagen": "blusa2.jpeg"},
+        {"talla": "L", "color": "Rojo",   "tipo": "Blusas", "imagen": "blusa3.jpeg"},
+        {"talla": "XL","color": "Azul",   "tipo": "Blusas", "imagen": "blusa4.jpeg"},
+    ]
+    for d in blusas:
+        db.session.add(Blusa(**d))
+    inserted["blusas"] = len(blusas)
+
+    # -------- VESTIDOS --------
+    vestidos = [
+        {"talla": "S", "color": "Negro",  "tipo": "Vestidos", "imagen": "vestido1.jpeg"},
+        {"talla": "M", "color": "Rojo",   "tipo": "Vestidos", "imagen": "vestido2.jpeg"},
+        {"talla": "L", "color": "Azul",   "tipo": "Vestidos", "imagen": "vestido3.jpeg"},
+        {"talla": "XL","color": "Verde",  "tipo": "Vestidos", "imagen": "vestido4.jpeg"},
+    ]
+    for d in vestidos:
+        db.session.add(Vestido(**d))
+    inserted["vestidos"] = len(vestidos)
+
+    # -------- ENTERIZOS --------
+    enterizos = [
+        {"talla": "S", "color": "Beige",  "tipo": "Enterizos", "imagen": "enterizo1.jpeg"},
+        {"talla": "M", "color": "Negro",  "tipo": "Enterizos", "imagen": "enterizo2.jpeg"},
+        {"talla": "L", "color": "Mostaza","tipo": "Enterizos", "imagen": "enterizo3.jpeg"},
+        {"talla": "XL","color": "Gris",   "tipo": "Enterizos", "imagen": "enterizo4.jpeg"},
+    ]
+    for d in enterizos:
+        db.session.add(Enterizo(**d))
+    inserted["enterizos"] = len(enterizos)
+
+    # -------- JEANS --------
+    jeans = [
+        {"talla": "30", "color": "Azul",     "tipo": "Jeans", "imagen": "jean1.jpeg"},
+        {"talla": "32", "color": "Azul Claro","tipo": "Jeans", "imagen": "jean2.jpeg"},
+        {"talla": "34", "color": "Negro",    "tipo": "Jeans", "imagen": "jean3.jpeg"},
+        {"talla": "36", "color": "Gris",     "tipo": "Jeans", "imagen": "jean4.jpeg"},
+    ]
+    for d in jeans:
+        db.session.add(Jean(**d))
+    inserted["jeans"] = len(jeans)
+
+    # -------- VESTIDOS DE GALA --------
+    vestidosgala = [
+        {"talla": "S",  "color": "Rojo",    "tipo": "VestidosGala", "imagen": "gala1.jpeg"},
+        {"talla": "M",  "color": "Negro",   "tipo": "VestidosGala", "imagen": "gala2.jpeg"},
+        {"talla": "L",  "color": "Dorado",  "tipo": "VestidosGala", "imagen": "gala3.jpeg"},
+        {"talla": "XL", "color": "Verde",   "tipo": "VestidosGala", "imagen": "gala4.jpeg"},
+    ]
+    for d in vestidosgala:
+        db.session.add(VestidoGala(**d))
+    inserted["vestidosgala"] = len(vestidosgala)
+
+    db.session.commit()
+    return jsonify({"status": "ok", "inserted": inserted})
