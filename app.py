@@ -12,12 +12,11 @@ db_url = os.getenv(
     "mysql+pymysql://root:Cemora1909@localhost/tu_base_de_datos"
 )
 
-# ❗️No agregamos ssl=true en la URL (PyMySQL espera un dict, no un string)
+# ❗️No agregues ?ssl=true a la URL (PyMySQL se rompe con un string)
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Si tu instancia realmente exige TLS y falla sin SSL,
-# descomenta esto (activa TLS sin validar CA):
+# Si tu MySQL exige TLS y sin esto no conecta, activa este bloque:
 # app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 #     "connect_args": {
 #         "ssl": {"fake_flag_to_enable_tls": True}
@@ -26,19 +25,21 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db.init_app(app)
 
-# registrar modelos para que create_all los vea
+# importa modelos para que create_all los “vea”
 from models import (  # noqa: E402
     Blusa, Bluson, Vestido, Enterizo, Jean, VestidoGala,
-    Compra, Usuario, Transaction
+    Compra, Usuario, Transaction,
 )
 
 app.register_blueprint(main)
 
+# Diagnóstico: crea tablas y muestra cuáles ve
 with app.app_context():
     from sqlalchemy import inspect
     db.create_all()
     print("✅ Tablas presentes:", inspect(db.engine).get_table_names())
 
+# Rutas de prueba (puedes quitarlas luego)
 @app.route("/health")
 def health():
     return "OK"

@@ -158,7 +158,7 @@ def login():
         flash("Usuario o contraseña incorrectos", "danger")
         return redirect(url_for("main.login"))
 
-    return render_template("login.html")  # tu template de login
+    return render_template("inicio.html")  # tu template de login
 
 @main.route("/logout")
 @login_required
@@ -221,6 +221,16 @@ def process_payment():
 def payment_result(tx_id):
     tx = Transaction.query.filter_by(tx_id=tx_id).first_or_404()
     return render_template("payment_result.html", tx=tx)
+
+@main.route("/db-check")
+def db_check():
+    try:
+        from models import Usuario
+        x = Usuario.query.first()
+        return f"DB OK. Primer usuario: {x.nombre_usuario if x else 'ninguno'}"
+    except Exception as e:
+        return f"DB ERROR: {type(e).__name__}: {e}", 500
+
 
 # --- RUTA TEMPORAL PARA SEMILLAR DATOS ---
 import os
