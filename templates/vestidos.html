@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Vestidos</title>
+    <link rel="icon" href="{{ url_for('static', filename='imagen.jpeg') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
 </head>
 <body>
@@ -11,7 +12,7 @@
     </h1>
 
     <!-- Botón Iniciar Sesión -->
-    <a href="/login" style="
+    <a href="{{ url_for('main.login') }}" style="
         position: absolute;
         top: 20px;
         right: 40px;
@@ -26,38 +27,43 @@
     </a>
 
     <nav class="menu-horizontal">
-      <a href="/">Inicio</a>
-      <a href="/blusones">Blusones</a>
-      <a href="/vestidos">Vestidos</a>
-      <a href="/enterizos">Enterizos</a>
-      <a href="/jeans">Jeans</a>
-      <a href="/vestidosgala">Vestidos de Gala</a>
-      <a href="/blusas">Blusas</a>
+        <a href="{{ url_for('main.inicio') }}">Inicio</a>
+        <a href="{{ url_for('main.blusones') }}">Blusones</a>
+        <a href="{{ url_for('main.vestidos') }}">Vestidos</a>
+        <a href="{{ url_for('main.enterizos') }}">Enterizos</a>
+        <a href="{{ url_for('main.jeans') }}">Jeans</a>
+        <a href="{{ url_for('main.vestidosgala') }}">Vestidos de Gala</a>
+        <a href="{{ url_for('main.blusas') }}">Blusas</a>
     </nav>
 
     <div style="display: flex; justify-content: center; gap: 20px; margin-top: 30px;">
 
         <!-- Imagen izquierda -->
         <div style="flex: 0 0 450px;">
-          <img src="{{ url_for('static', filename='imagen28.jpeg') }}" alt="Imagen izquierda" style="width: 100%; height: auto; object-fit: cover;">
+            <img src="{{ url_for('static', filename='imagen28.jpeg') }}" 
+                 alt="Imagen izquierda" 
+                 style="width: 100%; height: auto; object-fit: cover;">
         </div>
 
         <!-- Galería central en 3 columnas -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 800px;">
             {% for vestido in vestidos %}
             <div style="text-align: center;">
-                <img src="{{ url_for('static', filename=vestido.imagen) }}" style="width: 100%; max-width: 100px;">
+                <img src="{{ url_for('static', filename=vestido.imagen) }}" 
+                     style="width: 100%; max-width: 100px;">
                 <ul style="list-style: none; padding: 0; margin-top: 10px; font-family: Arial;">
-                  <li><strong>Talla:</strong> {{ vestido.talla }}</li>
-                  <li><strong>Color:</strong> {{ vestido.color }}</li>
-                  <li><strong>Tipo:</strong> {{ vestido.tipo }}</li>
+                    <li><strong>Talla:</strong> {{ vestido.talla }}</li>
+                    <li><strong>Color:</strong> {{ vestido.color }}</li>
+                    <li><strong>Tipo:</strong> {{ vestido.tipo }}</li>
                 </ul>
                 <!-- Botón Comprar -->
-                <form action="{{ url_for('comprar') }}" method="get">
+                <form action="{{ url_for('main.comprar') }}" method="get">
                     <input type="hidden" name="talla" value="{{ vestido.talla }}">
                     <input type="hidden" name="color" value="{{ vestido.color }}">
                     <input type="hidden" name="tipo" value="{{ vestido.tipo }}">
-                    <button type="submit" style="background-color: #d63384; color: white; padding: 5px 15px; border: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">
+                    <button type="submit" style="background-color: #d63384; color: white; 
+                        padding: 5px 15px; border: none; border-radius: 5px; font-size: 14px; 
+                        margin-top: 5px;">
                         Comprar
                     </button>
                 </form>
@@ -69,7 +75,9 @@
 
         <!-- Imagen derecha -->
         <div style="flex: 0 0 300px;">
-          <img src="{{ url_for('static', filename='imagen25.jpeg') }}" alt="Imagen derecha" style="width: 100%; height: auto; object-fit: cover;">
+            <img src="{{ url_for('static', filename='imagen25.jpeg') }}" 
+                 alt="Imagen derecha" 
+                 style="width: 100%; height: auto; object-fit: cover;">
         </div>
 
     </div>

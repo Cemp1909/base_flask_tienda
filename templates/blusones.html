@@ -11,7 +11,8 @@
     <h1 style="text-align: center; color: #d63384; font-size: 36px;">
         ¡Hola Bienvenidos al Mundo de los Blusones!
     </h1>
-    <a href="/login" style="
+
+    <a href="{{ url_for('main.login') }}" style="
         position: absolute;
         top: 20px;
         right: 40px;
@@ -26,13 +27,13 @@
     </a>
 
     <nav class="menu-horizontal">
-        <a href="/">Inicio</a>
-        <a href="/blusones">Blusones</a>
-        <a href="/vestidos">Vestidos</a>
-        <a href="/enterizos">Enterizos</a>
-        <a href="/jeans">Jeans</a>
-        <a href="/vestidosgala">Vestidos de Gala</a>
-        <a href="/blusas">Blusas</a>
+        <a href="{{ url_for('main.inicio') }}">Inicio</a>
+        <a href="{{ url_for('main.blusones') }}">Blusones</a>
+        <a href="{{ url_for('main.vestidos') }}">Vestidos</a>
+        <a href="{{ url_for('main.enterizos') }}">Enterizos</a>
+        <a href="{{ url_for('main.jeans') }}">Jeans</a>
+        <a href="{{ url_for('main.vestidosgala') }}">Vestidos de Gala</a>
+        <a href="{{ url_for('main.blusas') }}">Blusas</a>
     </nav>
 
     <div style="display: flex; justify-content: center; align-items: flex-start; gap: 20px;">
@@ -40,8 +41,8 @@
         <!-- Imagen izquierda fija -->
         <div style="flex: 0 0 350px;">
             <img src="{{ url_for('static', filename='imagen16.jpeg') }}" 
-                alt="Imagen izquierda" 
-                style="width: 100%; height: auto; object-fit: cover;">
+                 alt="Imagen izquierda" 
+                 style="width: 100%; height: auto; object-fit: cover;">
         </div>
 
         <!-- Galería central dinámica -->
@@ -55,7 +56,7 @@
                     <li><strong>Tipo:</strong> {{ prenda.tipo }}</li>
                 </ul>
                 <!-- Botón de comprar con redirección y datos -->
-                <form action="{{ url_for('comprar') }}" method="get">
+                <form action="{{ url_for('main.comprar') }}" method="get">
                     <input type="hidden" name="talla" value="{{ prenda.talla }}">
                     <input type="hidden" name="color" value="{{ prenda.color }}">
                     <input type="hidden" name="tipo" value="{{ prenda.tipo }}">
@@ -70,11 +71,10 @@
         <!-- Imagen derecha fija -->
         <div style="flex: 0 0 300px;">
             <img src="{{ url_for('static', filename='imagen18.jpeg') }}" 
-                alt="Imagen derecha" 
-                style="width: 120%; height: auto; object-fit: cover;">
+                 alt="Imagen derecha" 
+                 style="width: 120%; height: auto; object-fit: cover;">
         </div>
 
     </div>
 </body>
 </html>
-

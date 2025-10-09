@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pagar Simulado</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:50px;">
+  <h2>Pagar (Simulación)</h2>
+  <form action="{{ url_for('main.process_payment') }}" method="post" style="display:inline-block; text-align:left; min-width: 280px;">
+    <label>Nombre en la tarjeta:</label><br>
+    <input type="text" name="nombre" required><br><br>
+
+    <label>Número de tarjeta (usa 4111 1111 1111 1111):</label><br>
+    <input type="text" name="card_number" required placeholder="4111 1111 1111 1111"><br><br>
+
+    <label>Exp (MM/AA):</label><br>
+    <input type="text" name="exp" required placeholder="12/28"><br><br>
+
+    <label>CVV:</label><br>
+    <input type="text" name="cvv" required placeholder="123"><br><br>
+
+    <input type="hidden" name="amount" value="{{ amount }}">
+    <button type="submit" style="background-color:#d63384; color:white; padding:10px 20px; border:none; border-radius:6px;">
+      Pagar ${{ amount }}
+    </button>
+  </form>
+
+  <p style="margin-top:20px;">💡 Este es un pago simulado, sin dinero real.</p>
+  <a href="{{ url_for('main.inicio') }}">← Volver al inicio</a>
+</body>
+</html>

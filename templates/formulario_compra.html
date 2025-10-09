@@ -11,11 +11,26 @@
             const total = cantidad * precioUnitario;
             document.getElementById("precio_total").value = total.toFixed(2);
         }
+
+        // 👉 Nueva función: redirige a la pasarela de pago
+        function irAPasarela() {
+            const cantidad = parseFloat(document.getElementById("cantidad").value) || 0;
+            const precioUnitario = parseFloat(document.getElementById("precio_unitario").value) || 0;
+            const total = (cantidad * precioUnitario).toFixed(2);
+
+            if (total <= 0) {
+                alert("Primero ingresa una cantidad válida.");
+                return;
+            }
+
+            // Redirige al formulario de pago simulado
+            window.location.href = "{{ url_for('main.pay') }}?amount=" + total;
+        }
     </script>
 </head>
 <body>
     <h2>Registrar Compra</h2>
-    <form method="post" action="{{ url_for('enviar_pedido') }}">
+    <form method="post" action="{{ url_for('main.enviar_pedido') }}">
         <label>Nombre del Cliente:</label><br>
         <input type="text" name="nombre" required><br><br>
 
@@ -43,9 +58,13 @@
         <label>Precio Total:</label><br>
         <input type="number" id="precio_total" name="precio_total" step="0.01" readonly><br><br>
 
+        <!-- 🔹 Botones -->
         <button type="submit">Registrar Compra</button>
+        <button type="button" onclick="irAPasarela()" style="margin-left:10px; background-color:#d63384; color:white; border:none; padding:6px 12px; border-radius:5px;">
+            Pagar (Simulado)
+        </button>
     </form>
 
-    <br><a href="{{ url_for('inicio') }}">Volver al inicio</a>
+    <br><a href="{{ url_for('main.inicio') }}">Volver al inicio</a>
 </body>
 </html>

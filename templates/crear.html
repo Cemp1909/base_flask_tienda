@@ -11,21 +11,25 @@
 <body>
     <div class="formulario">
         <h1>Crear Usuario</h1>
-        <form method="POST" action="{{ url_for('crear_usuario') }}">
+        <form method="POST" action="{{ url_for('main.crear_usuario') }}">
             <div class="usuario">
                 <input type="text" name="usuario" required>
                 <label>Nombre de Usuario</label>
             </div>
+
             <div class="usuario">
                 <input type="password" name="contrasena" required>
                 <label>Contraseña</label>
             </div>
-            <div class="recordar">¿Olvidó su contraseña?</div>
+
+            <div class="recordar">
+                <a href="{{ url_for('main.login') }}" style="text-decoration:none; color:#d63384;">¿Ya tienes cuenta? Inicia sesión</a>
+            </div>
+
             <div class="botones">
-                <button type="submit" class="boton">Crear</button>
+                <button type="submit" class="boton">Crear Usuario</button>
             </div>
         </form>
     </div>
 </body>
 </html>
-

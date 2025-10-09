@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultado del Pago</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:60px;">
+  <h2>Resultado del Pago</h2>
+  <p><strong>ID Transacción:</strong> {{ tx.tx_id }}</p>
+  <p><strong>Monto:</strong> ${{ '%.2f'|format(tx.amount) }} {{ tx.currency }}</p>
+  <p><strong>Estado:</strong> 
+    {% if tx.status == 'success' %}
+      <span style="color:green;">Aprobado ✅</span>
+    {% else %}
+      <span style="color:red;">Rechazado ❌</span>
+    {% endif %}
+  </p>
+  <p><strong>Tarjeta:</strong> {{ tx.card_brand }} ****{{ tx.card_last4 }}</p>
+  <p><strong>Fecha:</strong> {{ tx.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</p>
+
+  <a href="{{ url_for('main.inicio') }}" 
+     style="display:inline-block; margin-top:20px; background-color:#d63384; color:white; padding:10px 20px; border-radius:6px; text-decoration:none;">
+     Volver al inicio
+  </a>
+</body>
+</html>
