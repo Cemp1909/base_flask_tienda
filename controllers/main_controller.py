@@ -1,17 +1,35 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+# controllers/main_controller.py
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, Blusa, Bluson, Vestido, Enterizo, Jean, VestidoGala, Compra, Usuario
-# IMPORTS EXTRA (arriba con el resto)
-import random, time
-from models import Transaction  # para guardar la transacción simulada
+from functools import wraps
 
+from models import db, Blusa, Bluson, Vestido, Enterizo, Jean, VestidoGala, Compra, Usuario, Transaction
+import random, time, string
 
 main = Blueprint("main", __name__, url_prefix="")
 
+# -------- Helpers de auth --------
+def login_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if "user_id" not in session:
+            flash("Debes iniciar sesión", "warning")
+            return redirect(url_for("main.login"))
+        return view(*args, **kwargs)
+    return wrapped
+
+def _gen_tx_id(n=12):
+    return "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
+
+def _mask_card(number):
+    return number[-4:] if number and len(number) >= 4 else number
+
+# -------- Home --------
 @main.route("/")
 def inicio():
     return render_template("index.html")
 
+# -------- Catálogo --------
 @main.route("/blusas")
 def blusas():
     data = Blusa.query.limit(6).all()
@@ -42,6 +60,7 @@ def vestidosgala():
     data = VestidoGala.query.limit(6).all()
     return render_template("vestidosgala.html", vestidosgala=data)
 
+# -------- Compra --------
 @main.route("/comprar")
 def comprar():
     talla = request.args.get("talla")
@@ -58,21 +77,23 @@ def comprar():
     }
     precio_unitario = precios.get(tipo, 0.0)
 
-    return render_template("formulario_compra.html",
-                           talla=talla, color=color, tipo=tipo, precio_unitario=precio_unitario)
+    return render_template(
+        "formulario_compra.html",
+        talla=talla, color=color, tipo=tipo, precio_unitario=precio_unitario
+    )
 
 @main.route("/enviar_pedido", methods=["POST"])
 def enviar_pedido():
     try:
-        nombre = request.form["nombre"]
-        direccion = request.form["direccion"]
-        telefono = request.form["telefono"]
-        talla = request.form["talla"]
-        color = request.form["color"]
-        tipo = request.form["tipo"]
-        cantidad = int(request.form["cantidad"])
+        nombre          = request.form["nombre"]
+        direccion       = request.form["direccion"]
+        telefono        = request.form["telefono"]
+        talla           = request.form["talla"]
+        color           = request.form["color"]
+        tipo            = request.form["tipo"]
+        cantidad        = int(request.form["cantidad"])
         precio_unitario = float(request.form["precio_unitario"])
-        total = cantidad * precio_unitario
+        total           = cantidad * precio_unitario
 
         compra = Compra(
             nombre_cliente=nombre,
@@ -84,34 +105,29 @@ def enviar_pedido():
         )
         db.session.add(compra)
         db.session.commit()
-        return render_template("pedido_exitoso.html",
-                               nombre=nombre, tipo=tipo, talla=talla, color=color, total=total)
+        return render_template(
+            "pedido_exitoso.html",
+            nombre=nombre, tipo=tipo, talla=talla, color=color, total=total
+        )
     except Exception as e:
         db.session.rollback()
-        flash(f"Error al procesar el pedido: {e}")
+        flash(f"Error al procesar el pedido: {e}", "danger")
         return redirect(url_for("main.inicio"))
 
-@main.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        nombre_usuario = request.form["usuario"]
-        contrasena = request.form["contrasena"]
-        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
-        if usuario and check_password_hash(usuario.contrasena_hash, contrasena):
-            flash("Has iniciado sesión correctamente")
-            return redirect(url_for("main.inicio"))
-        flash("Usuario o contraseña incorrectos")
-        return redirect(url_for("main.login"))
-    return render_template("login.html")
+# ===================  AUTENTICACIÓN  ===================
 
 @main.route("/crear_usuario", methods=["GET", "POST"])
 def crear_usuario():
     if request.method == "POST":
-        nombre_usuario = request.form["usuario"]
-        contrasena = request.form["contrasena"]
+        nombre_usuario = request.form.get("usuario", "").strip().lower()
+        contrasena     = request.form.get("contrasena", "")
+
+        if not nombre_usuario or not contrasena:
+            flash("Usuario y contraseña son obligatorios", "danger")
+            return redirect(url_for("main.crear_usuario"))
 
         if Usuario.query.filter_by(nombre_usuario=nombre_usuario).first():
-            flash("El usuario ya existe")
+            flash("El usuario ya existe", "warning")
             return redirect(url_for("main.crear_usuario"))
 
         nuevo = Usuario(
@@ -120,38 +136,58 @@ def crear_usuario():
         )
         db.session.add(nuevo)
         db.session.commit()
-        flash("Usuario creado. Por favor inicia sesión.")
+        flash("Usuario creado. Ahora inicia sesión.", "success")
         return redirect(url_for("main.login"))
-    return render_template("crear.html")
+
+    return render_template("crear.html")  # tu template de registro
+
+@main.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        nombre_usuario = request.form.get("usuario", "").strip().lower()
+        contrasena     = request.form.get("contrasena", "")
+
+        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
+        if usuario and check_password_hash(usuario.contrasena_hash, contrasena):
+            # ✅ Guardar sesión
+            session["user_id"]  = usuario.id
+            session["username"] = usuario.nombre_usuario
+            flash("Has iniciado sesión correctamente", "success")
+            return redirect(url_for("main.inicio"))
+
+        flash("Usuario o contraseña incorrectos", "danger")
+        return redirect(url_for("main.login"))
+
+    return render_template("login.html")  # tu template de login
+
+@main.route("/logout")
+@login_required
+def logout():
+    session.clear()
+    flash("Sesión cerrada", "info")
+    return redirect(url_for("main.login"))
+
+@main.route("/dashboard")
+@login_required
+def dashboard():
+    return render_template("dashboard.html", username=session.get("username"))
+
+# ===================  UTILIDADES BD  ===================
 
 @main.route("/init-db")
 def init_db():
     db.create_all()
     return "Tablas creadas correctamente ✅"
 
-# --- PASARELA DE PAGO SIMULADA (dentro del blueprint main) ---
-
-def _gen_tx_id(n=12):
-    import string, random
-    return "".join(random.choices(string.ascii_uppercase + string.digits, k=n))
-
-def _mask_card(number):
-    return number[-4:] if number and len(number) >= 4 else number
+# ===================  PASARELA SIMULADA  ===================
 
 @main.route("/pay", methods=["GET"])
 def pay():
-    """
-    Muestra el formulario de pago simulado.
-    Uso: /pay?amount=123.45
-    """
     amount = request.args.get("amount", 0)
     return render_template("pay.html", amount=amount)
 
 @main.route("/process_payment", methods=["POST"])
 def process_payment():
-    """
-    Procesa el pago simulado: valida datos, crea Transaction y redirige al resultado.
-    """
     nombre = request.form.get("nombre")
     card_number = request.form.get("card_number", "").replace(" ", "")
     exp = request.form.get("exp")
@@ -162,19 +198,15 @@ def process_payment():
         amount = 0.0
 
     if not (nombre and card_number and exp and cvv and amount > 0):
-        flash("Datos incompletos del pago.")
+        flash("Datos incompletos del pago.", "danger")
         return redirect(url_for("main.pay", amount=amount))
 
-    # Simulación: pequeña latencia y 90% de éxito
     time.sleep(1)
     is_success = (random.random() < 0.9)
 
     tx = Transaction(
-        tx_id=_gen_tx_id(),
-        amount=amount,
-        currency="USD",
-        status="success" if is_success else "failed",
-        method="card_fake",
+        tx_id=_gen_tx_id(), amount=amount, currency="USD",
+        status="success" if is_success else "failed", method="card_fake",
         card_last4=_mask_card(card_number),
         card_brand=("VISA" if card_number.startswith("4")
                     else "MC" if card_number.startswith("5")
@@ -187,9 +219,5 @@ def process_payment():
 
 @main.route("/payment_result/<tx_id>")
 def payment_result(tx_id):
-    """
-    Muestra la página de resultado del pago simulado.
-    """
     tx = Transaction.query.filter_by(tx_id=tx_id).first_or_404()
     return render_template("payment_result.html", tx=tx)
-
