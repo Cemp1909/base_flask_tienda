@@ -32,8 +32,7 @@ def inicio():
 # -------- Catálogo --------
 @main.route("/blusas")
 def blusas():
-    data = Blusa.query.limit(6).all()
-    return render_template("blusas.html", blusas=data)
+    return render_template("blusas.html")
 
 @main.route("/blusones")
 def blusones():
@@ -43,23 +42,22 @@ def blusones():
 
 @main.route("/vestidos")
 def vestidos():
-    data = Vestido.query.limit(6).all()
-    return render_template("vestidos.html", vestidos=data)
+    return render_template("vestidos.html")
 
 @main.route("/enterizos")
 def enterizos():
-    data = Enterizo.query.limit(6).all()
-    return render_template("enterizos.html", enterizos=data)
+    
+    return render_template("enterizos.html")
 
 @main.route("/jeans")
 def jeans():
-    data = Jean.query.limit(6).all()
-    return render_template("jeans.html", jeans=data)
+   
+    return render_template("jeans.html")
 
 @main.route("/vestidosgala")
 def vestidosgala():
-    data = VestidoGala.query.limit(6).all()
-    return render_template("vestidosgala.html", vestidosgala=data)
+    
+    return render_template("vestidosgala.html")
 
 # -------- Compra --------
 @main.route("/comprar")

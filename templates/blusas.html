@@ -1,71 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <title>Blusas</title>
-    <link rel="icon" href="{{ url_for('static', filename='imagen.jpeg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <meta charset="utf-8" />
+  <title>Blusas</title>
+  <link rel="icon" href="{{ url_for('static', filename='imagen.jpeg') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body>
-    <h1 style="text-align: center; color: #d63384; font-size: 36px;">
-        ¡Hola Bienvenidos al Mundo de las Blusas!
-    </h1>
+  <h1 style="text-align:center;color:#d63384;font-size:36px;margin-top:16px;">
+    ¡Hola Bienvenidos al Mundo de las Blusas!
+  </h1>
 
-    <a href="{{ url_for('main.login') }}" 
-       style="position: absolute; top: 20px; right: 40px; background-color: #d63384; color: white; 
-              padding: 10px 20px; border-radius: 5px; text-decoration: none; font-family: Arial; font-size: 14px;">
-        Iniciar Sesión
-    </a>
+  <a href="{{ url_for('main.login') }}"
+     style="position:absolute;top:20px;right:40px;background-color:#d63384;color:#fff;
+            padding:10px 20px;border-radius:5px;text-decoration:none;font-family:Arial;font-size:14px;">
+    Iniciar Sesión
+  </a>
 
-    <nav class="menu-horizontal">
-        <a href="{{ url_for('main.inicio') }}">Inicio</a>
-        <a href="{{ url_for('main.blusones') }}">Blusones</a>
-        <a href="{{ url_for('main.vestidos') }}">Vestidos</a>
-        <a href="{{ url_for('main.enterizos') }}">Enterizos</a>
-        <a href="{{ url_for('main.jeans') }}">Jeans</a>
-        <a href="{{ url_for('main.vestidosgala') }}">Vestidos de Gala</a>
-        <a href="{{ url_for('main.blusas') }}">Blusas</a>
-    </nav>
+  <nav class="menu-horizontal" style="
+      margin:12px auto 24px;max-width:1200px;border:3px solid #8b188b;border-radius:20px;
+      padding:18px;display:flex;gap:48px;justify-content:center;font-weight:700;font-size:24px;">
+    <a href="{{ url_for('main.inicio') }}">Inicio</a>
+    <a href="{{ url_for('main.blusones') }}">Blusones</a>
+    <a href="{{ url_for('main.vestidos') }}">Vestidos</a>
+    <a href="{{ url_for('main.enterizos') }}">Enterizos</a>
+    <a href="{{ url_for('main.jeans') }}">Jeans</a>
+    <a href="{{ url_for('main.vestidosgala') }}">Vestidos de Gala</a>
+    <a href="{{ url_for('main.blusas') }}">Blusas</a>
+  </nav>
 
-    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 40px;">
+  <!-- Layout principal: izquierda fija | grid centro | derecha fija -->
+  <div style="display:flex;justify-content:center;align-items:flex-start;gap:24px;max-width:1400px;margin:0 auto 48px;">
 
-        <!-- Imagen izquierda -->
-        <div style="flex: 0 0 400px;">
-            <img src="{{ url_for('static', filename='imagen61.jpeg') }}" 
-                 alt="Imagen izquierda" style="width: 100%; height: auto; object-fit: cover;">
-        </div>
-
-        <!-- Galería dinámica -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 60px; max-width: 800px;">
-            {% for blusa in blusas %}
-            <div style="text-align: center;">
-                <img src="{{ url_for('static', filename='imagen61.jpeg') }}" 
-                     alt="Blusa" style="width: 100%; max-width: 100px;">
-                <ul style="list-style: none; padding: 0; margin-top: 10px; font-family: Arial;">
-                    <li><strong>Talla:</strong> {{ blusa.talla }}</li>
-                    <li><strong>Color:</strong> {{ blusa.color }}</li>
-                    <li><strong>Tipo:</strong> {{ blusa.tipo }}</li>
-                </ul>
-                <!-- Botón de comprar con redirección y datos -->
-                <form action="{{ url_for('main.comprar') }}" method="get">
-                    <input type="hidden" name="talla" value="{{ blusa.talla }}">
-                    <input type="hidden" name="color" value="{{ blusa.color }}">
-                    <input type="hidden" name="tipo" value="{{ blusa.tipo }}">
-                    <button type="submit" 
-                            style="background-color: #d63384; color: white; padding: 5px 15px; 
-                                   border: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">
-                        Comprar
-                    </button>
-                </form>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Imagen derecha -->
-        <div style="flex: 0 0 430px;">
-            <img src="{{ url_for('static', filename='imagen62.jpeg') }}" 
-                 alt="Imagen derecha" style="width: 100%; height: auto; object-fit: cover;">
-        </div>
+    <!-- Imagen izquierda fija -->
+    <div style="flex:0 0 340px;">
+      <img src="{{ url_for('static', filename='imagen61.jpeg') }}"
+           alt="Imagen izquierda"
+           style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
     </div>
+
+    <!-- Grid central -->
+    <div style="flex:1 1 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+                gap:20px;max-width:900px;">
+
+      {# --------- CASO 1: Hay lista 'blusas' desde el controlador --------- #}
+      {% if blusas and blusas|length > 0 %}
+        {% for blusa in blusas %}
+        <div style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                    box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+          <!-- Usa blusa.imagen si viene; si no, usa una imagen por defecto -->
+          <img src="{{ url_for('static', filename=(blusa.imagen|default('imagen17.jpeg'))) }}"
+               alt="Blusa"
+               style="width:100%;max-width:160px;height:auto;object-fit:cover;border-radius:8px;">
+
+          <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+            <li><strong>Talla:</strong> {{ blusa.talla|default('M') }}</li>
+            <li><strong>Color:</strong> {{ blusa.color|default('Rosado') }}</li>
+            <li><strong>Tipo:</strong> {{ blusa.tipo|default('Blusas') }}</li>
+          </ul>
+
+          <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+            <input type="hidden" name="talla" value="{{ blusa.talla|default('M') }}">
+            <input type="hidden" name="color" value="{{ blusa.color|default('Rosado') }}">
+            <!-- Por defecto enviamos 'Blusas' para que el precio mapee bien -->
+            <input type="hidden" name="tipo"  value="{{ blusa.tipo|default('Blusas') }}">
+            <button type="submit"
+                    style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                           border-radius:5px;font-size:14px;cursor:pointer;">
+              Comprar
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+
+      {# --------- CASO 2: No hay 'blusas' → mostramos tarjetas estáticas --------- #}
+      {% else %}
+        {% set items = [
+          {'talla':'XL','color':'Rosado','img':'imagen17.jpeg'},
+          {'talla':'XL','color':'Salmón','img':'imagen15.jpeg'},
+          {'talla':'XL','color':'Blanco y Negro','img':'imagen18.jpeg'},
+          {'talla':'L','color':'Gris','img':'imagen16.jpeg'},
+          {'talla':'M','color':'Rosado','img':'imagen17.jpeg'},
+          {'talla':'M','color':'Salmón','img':'imagen15.jpeg'}
+        ] %}
+        {% for it in items %}
+        <div style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                    box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+          <img src="{{ url_for('static', filename=it.img) }}"
+               alt="Blusa {{ it.color }}"
+               style="width:100%;max-width:160px;height:auto;object-fit:cover;border-radius:8px;">
+
+          <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+            <li><strong>Talla:</strong> {{ it.talla }}</li>
+            <li><strong>Color:</strong> {{ it.color }}</li>
+            <li><strong>Tipo:</strong> Blusas</li>
+          </ul>
+
+          <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+            <input type="hidden" name="talla" value="{{ it.talla }}">
+            <input type="hidden" name="color" value="{{ it.color }}">
+            <input type="hidden" name="tipo"  value="Blusas">
+            <button type="submit"
+                    style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                           border-radius:5px;font-size:14px;cursor:pointer;">
+              Comprar
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    <!-- Imagen derecha fija -->
+    <div style="flex:0 0 320px;">
+      <img src="{{ url_for('static', filename='imagen62.jpeg') }}"
+           alt="Imagen derecha"
+           style="width:100%;height:auto;object-fit:cover;border-radius:8px;">
+    </div>
+
+  </div>
 </body>
 </html>
