@@ -37,8 +37,9 @@ def blusas():
 
 @main.route("/blusones")
 def blusones():
-    data = Bluson.query.limit(6).all()
-    return render_template("blusones.html", prendas=data)
+    # Sin DB: devolvemos un HTML estático
+    return render_template("blusones.html")
+
 
 @main.route("/vestidos")
 def vestidos():

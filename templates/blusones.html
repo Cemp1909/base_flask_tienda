@@ -32,47 +32,32 @@
     <a href="{{ url_for('main.blusas') }}">Blusas</a>
   </nav>
 
-  <!-- Galería con las dos imágenes fijas + prenda por item -->
+  <!-- Grid estático (sin DB) -->
   <div class="grid-prendas"
        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
               gap:20px;max-width:1200px;margin:0 auto 40px;">
 
-    {% if prendas|length == 0 %}
-      <p style="grid-column:1/-1;text-align:center;margin:24px 0;">
-        No hay blusones cargados por ahora.
-      </p>
-    {% endif %}
-
-    {% for prenda in prendas %}
+    <!-- ITEM 1 -->
     <div class="card"
          style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
                 box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
-      
-      <!-- Tres imágenes por cada prenda -->
       <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
-        <!-- Fija izquierda -->
         <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
              alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
-        <!-- Imagen de la prenda (desde BD) -->
-        <img src="{{ url_for('static', filename=prenda.imagen) }}"
-             alt="prenda" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
-        <!-- Fija derecha -->
+        <img src="{{ url_for('static', filename='bluson1.jpeg') }}"
+             alt="Blusón rosado" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
         <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
              alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
       </div>
-
-      <!-- Info de la prenda -->
       <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
-        <li><strong>Talla:</strong> {{ prenda.talla }}</li>
-        <li><strong>Color:</strong> {{ prenda.color }}</li>
-        <li><strong>Tipo:</strong> {{ prenda.tipo }}</li>
+        <li><strong>Talla:</strong> XL</li>
+        <li><strong>Color:</strong> Rosado</li>
+        <li><strong>Tipo:</strong> Blusones</li>
       </ul>
-
-      <!-- Botón Comprar -->
       <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
-        <input type="hidden" name="talla" value="{{ prenda.talla }}">
-        <input type="hidden" name="color" value="{{ prenda.color }}">
-        <input type="hidden" name="tipo"  value="{{ prenda.tipo }}">
+        <input type="hidden" name="talla" value="XL">
+        <input type="hidden" name="color" value="Rosado">
+        <input type="hidden" name="tipo"  value="Blusones">
         <button type="submit"
                 style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
                        border-radius:5px;font-size:14px;cursor:pointer;">
@@ -80,7 +65,152 @@
         </button>
       </form>
     </div>
-    {% endfor %}
+
+    <!-- ITEM 2 -->
+    <div class="card"
+         style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+      <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
+        <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
+             alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='bluson2.jpeg') }}"
+             alt="Blusón salmón" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
+             alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+      </div>
+      <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+        <li><strong>Talla:</strong> XL</li>
+        <li><strong>Color:</strong> Salmón</li>
+        <li><strong>Tipo:</strong> Blusones</li>
+      </ul>
+      <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+        <input type="hidden" name="talla" value="XL">
+        <input type="hidden" name="color" value="Salmon">
+        <input type="hidden" name="tipo"  value="Blusones">
+        <button type="submit"
+                style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                       border-radius:5px;font-size:14px;cursor:pointer;">
+          Comprar
+        </button>
+      </form>
+    </div>
+
+    <!-- ITEM 3 -->
+    <div class="card"
+         style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+      <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
+        <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
+             alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='bluson3.jpeg') }}"
+             alt="Blusón b/n" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
+             alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+      </div>
+      <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+        <li><strong>Talla:</strong> XL</li>
+        <li><strong>Color:</strong> Blanco y Negro</li>
+        <li><strong>Tipo:</strong> Blusones</li>
+      </ul>
+      <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+        <input type="hidden" name="talla" value="XL">
+        <input type="hidden" name="color" value="Blanco y Negro">
+        <input type="hidden" name="tipo"  value="Blusones">
+        <button type="submit"
+                style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                       border-radius:5px;font-size:14px;cursor:pointer;">
+          Comprar
+        </button>
+      </form>
+    </div>
+
+    <!-- ITEM 4 -->
+    <div class="card"
+         style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+      <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
+        <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
+             alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='bluson4.jpeg') }}"
+             alt="Blusón gris" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
+             alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+      </div>
+      <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+        <li><strong>Talla:</strong> XL</li>
+        <li><strong>Color:</strong> Gris</li>
+        <li><strong>Tipo:</strong> Blusones</li>
+      </ul>
+      <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+        <input type="hidden" name="talla" value="XL">
+        <input type="hidden" name="color" value="Gris">
+        <input type="hidden" name="tipo"  value="Blusones">
+        <button type="submit"
+                style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                       border-radius:5px;font-size:14px;cursor:pointer;">
+          Comprar
+        </button>
+      </form>
+    </div>
+
+    <!-- ITEM 5 -->
+    <div class="card"
+         style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+      <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
+        <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
+             alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='bluson5.jpeg') }}"
+             alt="Blusón rosado L" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
+             alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+      </div>
+      <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+        <li><strong>Talla:</strong> L</li>
+        <li><strong>Color:</strong> Rosado</li>
+        <li><strong>Tipo:</strong> Blusones</li>
+      </ul>
+      <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+        <input type="hidden" name="talla" value="L">
+        <input type="hidden" name="color" value="Rosado">
+        <input type="hidden" name="tipo"  value="Blusones">
+        <button type="submit"
+                style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                       border-radius:5px;font-size:14px;cursor:pointer;">
+          Comprar
+        </button>
+      </form>
+    </div>
+
+    <!-- ITEM 6 -->
+    <div class="card"
+         style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+      <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
+        <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
+             alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='bluson6.jpeg') }}"
+             alt="Blusón salmón M" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
+        <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
+             alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+      </div>
+      <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+        <li><strong>Talla:</strong> M</li>
+        <li><strong>Color:</strong> Salmón</li>
+        <li><strong>Tipo:</strong> Blusones</li>
+      </ul>
+      <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+        <input type="hidden" name="talla" value="M">
+        <input type="hidden" name="color" value="Salmon">
+        <input type="hidden" name="tipo"  value="Blusones">
+        <button type="submit"
+                style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                       border-radius:5px;font-size:14px;cursor:pointer;">
+          Comprar
+        </button>
+      </form>
+    </div>
+
   </div>
 </body>
 </html>
