@@ -1,80 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Blusones</title>
-    <link rel="icon" href="{{ url_for('static', filename='imagen.jpeg') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Blusones</title>
+  <link rel="icon" href="{{ url_for('static', filename='imagen.jpeg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    <h1 style="text-align: center; color: #d63384; font-size: 36px;">
-        ¡Hola Bienvenidos al Mundo de los Blusones!
-    </h1>
+  <!-- Título principal -->
+  <h1 style="text-align:center;color:#d63384;font-size:36px;margin-top:16px;">
+    ¡Hola Bienvenidos al Mundo de los Blusones!
+  </h1>
 
-    <a href="{{ url_for('main.login') }}" style="
-        position: absolute;
-        top: 20px;
-        right: 40px;
-        background-color: #d63384;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-family: Arial;
-        font-size: 14px;">
-        Iniciar Sesión
-    </a>
+  <!-- Botón Iniciar Sesión -->
+  <a href="{{ url_for('main.login') }}" style="
+    position:absolute;top:20px;right:40px;background-color:#d63384;color:#fff;
+    padding:10px 20px;border-radius:5px;text-decoration:none;font-family:Arial;font-size:14px;">
+    Iniciar Sesión
+  </a>
 
-    <nav class="menu-horizontal">
-        <a href="{{ url_for('main.inicio') }}">Inicio</a>
-        <a href="{{ url_for('main.blusones') }}">Blusones</a>
-        <a href="{{ url_for('main.vestidos') }}">Vestidos</a>
-        <a href="{{ url_for('main.enterizos') }}">Enterizos</a>
-        <a href="{{ url_for('main.jeans') }}">Jeans</a>
-        <a href="{{ url_for('main.vestidosgala') }}">Vestidos de Gala</a>
-        <a href="{{ url_for('main.blusas') }}">Blusas</a>
-    </nav>
+  <!-- Menú -->
+  <nav class="menu-horizontal" style="margin:12px auto 24px;max-width:1200px;">
+    <a href="{{ url_for('main.inicio') }}">Inicio</a>
+    <a href="{{ url_for('main.blusones') }}">Blusones</a>
+    <a href="{{ url_for('main.vestidos') }}">Vestidos</a>
+    <a href="{{ url_for('main.enterizos') }}">Enterizos</a>
+    <a href="{{ url_for('main.jeans') }}">Jeans</a>
+    <a href="{{ url_for('main.vestidosgala') }}">Vestidos de Gala</a>
+    <a href="{{ url_for('main.blusas') }}">Blusas</a>
+  </nav>
 
-    <div style="display: flex; justify-content: center; align-items: flex-start; gap: 20px;">
+  <!-- Galería con las dos imágenes fijas + prenda por item -->
+  <div class="grid-prendas"
+       style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+              gap:20px;max-width:1200px;margin:0 auto 40px;">
 
-        <!-- Imagen izquierda fija -->
-        <div style="flex: 0 0 350px;">
-            <img src="{{ url_for('static', filename='imagen16.jpeg') }}" 
-                 alt="Imagen izquierda" 
-                 style="width: 100%; height: auto; object-fit: cover;">
-        </div>
+    {% if prendas|length == 0 %}
+      <p style="grid-column:1/-1;text-align:center;margin:24px 0;">
+        No hay blusones cargados por ahora.
+      </p>
+    {% endif %}
 
-        <!-- Galería central dinámica -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 800px;">
-            {% for prenda in prendas %}
-            <div style="text-align: center;">
-                <img src="{{ url_for('static', filename=prenda.imagen) }}" style="width: 100%; max-width: 100px;">
-                <ul style="list-style: none; padding: 0; margin-top: 10px; font-family: Arial;">
-                    <li><strong>Talla:</strong> {{ prenda.talla }}</li>
-                    <li><strong>Color:</strong> {{ prenda.color }}</li>
-                    <li><strong>Tipo:</strong> {{ prenda.tipo }}</li>
-                </ul>
-                <!-- Botón de comprar con redirección y datos -->
-                <form action="{{ url_for('main.comprar') }}" method="get">
-                    <input type="hidden" name="talla" value="{{ prenda.talla }}">
-                    <input type="hidden" name="color" value="{{ prenda.color }}">
-                    <input type="hidden" name="tipo" value="{{ prenda.tipo }}">
-                    <button type="submit" style="background-color: #d63384; color: white; padding: 5px 15px; border: none; border-radius: 5px; font-size: 14px; margin-top: 5px;">
-                        Comprar
-                    </button>
-                </form>
-            </div>
-            {% endfor %}
-        </div>
+    {% for prenda in prendas %}
+    <div class="card"
+         style="text-align:center;padding:14px;border:1px solid #eee;border-radius:10px;
+                box-shadow:0 2px 8px rgba(0,0,0,.04);background:#fff;">
+      
+      <!-- Tres imágenes por cada prenda -->
+      <div class="imgs" style="display:flex;align-items:flex-start;justify-content:center;gap:10px;">
+        <!-- Fija izquierda -->
+        <img src="{{ url_for('static', filename='imagen16.jpeg') }}"
+             alt="izq" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+        <!-- Imagen de la prenda (desde BD) -->
+        <img src="{{ url_for('static', filename=prenda.imagen) }}"
+             alt="prenda" style="width:120px;height:auto;object-fit:cover;border-radius:6px;">
+        <!-- Fija derecha -->
+        <img src="{{ url_for('static', filename='imagen18.jpeg') }}"
+             alt="der" style="width:90px;height:auto;object-fit:cover;border-radius:6px;">
+      </div>
 
-        <!-- Imagen derecha fija -->
-        <div style="flex: 0 0 300px;">
-            <img src="{{ url_for('static', filename='imagen18.jpeg') }}" 
-                 alt="Imagen derecha" 
-                 style="width: 120%; height: auto; object-fit: cover;">
-        </div>
+      <!-- Info de la prenda -->
+      <ul style="list-style:none;padding:0;margin-top:10px;font-family:Arial;">
+        <li><strong>Talla:</strong> {{ prenda.talla }}</li>
+        <li><strong>Color:</strong> {{ prenda.color }}</li>
+        <li><strong>Tipo:</strong> {{ prenda.tipo }}</li>
+      </ul>
 
+      <!-- Botón Comprar -->
+      <form action="{{ url_for('main.comprar') }}" method="get" style="margin-top:6px;">
+        <input type="hidden" name="talla" value="{{ prenda.talla }}">
+        <input type="hidden" name="color" value="{{ prenda.color }}">
+        <input type="hidden" name="tipo"  value="{{ prenda.tipo }}">
+        <button type="submit"
+                style="background-color:#d63384;color:#fff;padding:6px 16px;border:none;
+                       border-radius:5px;font-size:14px;cursor:pointer;">
+          Comprar
+        </button>
+      </form>
     </div>
+    {% endfor %}
+  </div>
 </body>
 </html>
