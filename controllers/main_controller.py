@@ -67,19 +67,24 @@ def comprar():
     tipo  = request.args.get("tipo")
 
     precios = {
-        "Blusa": 20.00,
-        "Bluson": 25.00,
-        "Vestido": 40.00,
-        "Enterizo": 35.00,
-        "Jean": 30.00,
-        "VestidoGala": 80.00,
+        "Blusas": 20.00,
+        "Blusones": 25.00,
+        "Vestidos": 40.00,
+        "Enterizos": 35.00,
+        "Jeans": 30.00,
+        "Vestidos de Gala": 80.00,
     }
+
     precio_unitario = precios.get(tipo, 0.0)
 
     return render_template(
         "formulario_compra.html",
-        talla=talla, color=color, tipo=tipo, precio_unitario=precio_unitario
+        talla=talla,
+        color=color,
+        tipo=tipo,
+        precio_unitario=precio_unitario
     )
+
 
 @main.route("/enviar_pedido", methods=["POST"])
 def enviar_pedido():
