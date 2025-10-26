@@ -10,59 +10,62 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
 </head>
 <body>
-    <div class="formulario">
-        <h1>Crear Usuario</h1>
+            <div class="formulario">
+         <h1>Crear Usuario</h1>
 
-        <form method="POST" action="{{ url_for('main.crear_usuario') }}">
-            <div class="usuario">
-                <input type="text" name="nombre_completo" required>
-                <label>Nombre Completo</label>
-            </div>
+    <form method="POST" action="{{ url_for('main.crear_usuario') }}">
+        
+        <div class="usuario">
+            <input type="text" name="nombre_completo" required>
+            <label>Nombre Completo</label>
+        </div>
 
-            <div class="usuario">
-                <input type="text" name="usuario" required>
-                <label>Nombre de Usuario</label>
-            </div>
+        <div class="usuario">
+            <input type="text" name="usuario" required>
+            <label>Nombre de Usuario</label>
+        </div>
 
-            <div class="usuario">
-                <input type="email" name="email" required>
-                <label>Correo Electrónico</label>
-            </div>
+        <div class="usuario">
+            <input type="email" name="email" required>
+            <label>Correo Electrónico</label>
+        </div>
 
-            <div class="usuario">
-                <input type="tel" name="telefono">
-                <label>Teléfono</label>
-            </div>
+        <div class="usuario">
+            <input type="tel" name="telefono" pattern="[0-9]{10}" title="10 dígitos">
+            <label>Teléfono</label>
+        </div>
 
-            <div class="usuario">
-                <input type="text" name="direccion">
-                <label>Dirección</label>
-            </div>
+        <div class="usuario">
+            <input type="text" name="direccion">
+            <label>Dirección</label>
+        </div>
 
-            <div class="usuario">
-                <select name="rol" required>
-                    <option value="cliente" selected>Cliente</option>
-                    <option value="vendedor">Vendedor</option>
-                    <option value="admin">Administrador</option>
-                </select>
-                <label>Rol</label>
-            </div>
+        <div class="usuario">
+            <select name="rol" required>
+                <option value="cliente" selected>Cliente</option>
+                <option value="vendedor">Vendedor</option>
+                <option value="admin">Administrador</option>
+            </select>
+            <label>Rol</label>
+        </div>
 
-            <div class="usuario">
-                <input type="password" name="contrasena" required>
-                <label>Contraseña</label>
-            </div>
+        <div class="usuario">
+            <input type="password" name="contrasena" required>
+            <label>Contraseña</label>
+        </div>
 
-            <div class="botones">
-                <button type="submit" class="boton">Crear Usuario</button>
-            </div>
+        <div class="recordar">
+            <a href="{{ url_for('main.login') }}" style="text-decoration:none; color:#d63384;">
+                ¿Ya tienes cuenta? Inicia sesión
+            </a>
+        </div>
 
-            <div class="recordar">
-                <a href="{{ url_for('main.login') }}" style="text-decoration:none; color:#d63384;">
-                    ¿Ya tienes cuenta? Inicia sesión
-                </a>
-            </div>
-        </form>
-    </div>
+        <div class="botones">
+            <button type="submit" class="boton">Crear Usuario</button>
+        </div>
+
+    </form>
+</div>
+
 </body>
 </html>
