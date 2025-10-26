@@ -80,11 +80,38 @@ class Compra(db.Model):
     total = db.Column(db.Float, nullable=False)
     fecha = db.Column(db.DateTime, server_default=db.func.now())
 
+
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
+
+    # --- Clave primaria ---
     id = db.Column(db.Integer, primary_key=True)
+
+    # --- Datos de acceso ---
     nombre_usuario = db.Column(db.String(50), unique=True, nullable=False)
     contrasena_hash = db.Column(db.String(255), nullable=False)
+
+    # --- Datos personales ---
+    nombre_completo = db.Column(db.String(100))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    telefono = db.Column(db.String(20))
+    direccion = db.Column(db.String(200))
+
+    # --- Información de control ---
+    fecha_registro = db.Column(db.DateTime, default=datetime.utcnow)
+    rol = db.Column(db.String(20), default='cliente')  # admin / cliente / vendedor
+
+    # --- Métodos de utilidad ---
+    def set_password(self, password):
+        """Cifra la contraseña antes de guardar"""
+        self.contrasena_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        """Verifica una contraseña ingresada"""
+        return check_password_hash(self.contrasena_hash, password)
+
+    def __repr__(self):
+        return f"<Usuario {self.nombre_usuario}>"
 
 # --- PÉGALO AL FINAL DE models.py ---
 from datetime import datetime

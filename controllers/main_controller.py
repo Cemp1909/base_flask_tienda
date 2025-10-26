@@ -156,10 +156,11 @@ def login():
             # ✅ Guardar sesión
             session["user_id"]  = usuario.id
             session["username"] = usuario.nombre_usuario
-            flash("Has iniciado sesión correctamente", "success")
-            return redirect(url_for("main.inicio"))
+            flash("Has iniciado sesión correctamente ✅", "success")
+            return redirect(url_for("main.inicio"))  # Redirige al panel principal o página protegida
 
-        flash("Usuario o contraseña incorrectos", "danger")
+        # ❌ Si el usuario o contraseña no son válidos
+        flash("Usuario o contraseña incorrectos ❌", "danger")
         return redirect(url_for("main.login"))
 
     return render_template("inicio.html")  # tu template de login
