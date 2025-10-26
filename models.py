@@ -1,54 +1,39 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import CheckConstraint
 
 db = SQLAlchemy()
 
-class Blusa(db.Model):
+class RopaBase(db.Model):
+    __abstract__ = True
+    id = db.Column(db.Integer, primary_key=True)
+    talla = db.Column(db.String(10))
+    color = db.Column(db.String(50))
+    tipo  = db.Column(db.String(20))
+    imagen = db.Column(db.String(255))
+    stock = db.Column(db.Integer, nullable=False, default=0)  # ← NUEVO CAMPO
+
+    __table_args__ = (
+        CheckConstraint('stock >= 0', name='ck_stock_no_negativo'),
+    )
+
+class Blusa(RopaBase):
     __tablename__ = 'blusas'
-    id = db.Column(db.Integer, primary_key=True)
-    talla = db.Column(db.String(10))
-    color = db.Column(db.String(50))
-    tipo  = db.Column(db.String(20))
-    imagen = db.Column(db.String(100))   # ← NUEVO
-    
-class Bluson(db.Model):
+
+class Bluson(RopaBase):
     __tablename__ = 'blusones'
-    id = db.Column(db.Integer, primary_key=True)
-    talla = db.Column(db.String(10))
-    color = db.Column(db.String(50))
-    tipo  = db.Column(db.String(20))
-    imagen = db.Column(db.String(100))
 
-class Vestido(db.Model):
+class Vestido(RopaBase):
     __tablename__ = 'vestidos'
-    id = db.Column(db.Integer, primary_key=True)
-    talla = db.Column(db.String(10))
-    color = db.Column(db.String(50))
-    tipo  = db.Column(db.String(20))
-    imagen = db.Column(db.String(100))
 
-class Enterizo(db.Model):
+class Enterizo(RopaBase):
     __tablename__ = 'enterizos'
-    id = db.Column(db.Integer, primary_key=True)
-    talla = db.Column(db.String(10))
-    color = db.Column(db.String(50))
-    tipo  = db.Column(db.String(20))
-    imagen = db.Column(db.String(100))
 
-class Jean(db.Model):
+class Jean(RopaBase):
     __tablename__ = 'jeans'
-    id = db.Column(db.Integer, primary_key=True)
-    talla = db.Column(db.String(10))
-    color = db.Column(db.String(50))
-    tipo  = db.Column(db.String(20))
-    imagen = db.Column(db.String(100))
 
-class VestidoGala(db.Model):
+class VestidoGala(RopaBase):
     __tablename__ = 'vestidosgala'
-    id = db.Column(db.Integer, primary_key=True)
-    talla = db.Column(db.String(10))
-    color = db.Column(db.String(50))
-    tipo  = db.Column(db.String(20))
-    imagen = db.Column(db.String(100))
+
 
 class Compra(db.Model):
     __tablename__ = 'compras'
