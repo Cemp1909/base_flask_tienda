@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from models import db
+from flask_migrate import Migrate  
 from controllers.main_controller import main
 
 app = Flask(__name__)
