@@ -1,37 +1,38 @@
+# app.py
 import os
 from flask import Flask
+from flask_migrate import Migrate
 from models import db
-from flask_migrate import Migrate  
 from controllers.main_controller import main
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "tu_clave_secreta_aqui")
 
-# ---- DB config (Render/Local) ----
+# ---- DB config (Railway/Render/Local) ----
 db_url = os.getenv(
     "DATABASE_URL",
     "mysql+pymysql://root:Cemora1909@localhost/tu_base_de_datos"
 )
 
-# ❗️No agregues ?ssl=true a la URL (PyMySQL se rompe con un string)
+# Si viene como mysql:// (sin driver), conviértelo a mysql+pymysql://
+if db_url.startswith("mysql://"):
+    db_url = db_url.replace("mysql://", "mysql+pymysql://", 1)
+
 app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-# Si tu MySQL exige TLS y sin esto no conecta, activa este bloque:
-# app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
-#     "connect_args": {
-#         "ssl": {"fake_flag_to_enable_tls": True}
-#     }
-# }
-
 db.init_app(app)
 
-# importa modelos para que create_all los “vea”
+# ✅ Inicializa Flask-Migrate (esto habilita 'flask db ...')
+migrate = Migrate(app, db)
+
+# importa modelos para que Alembic los detecte
 from models import (  # noqa: E402
     Blusa, Bluson, Vestido, Enterizo, Jean, VestidoGala,
     Compra, Usuario, Transaction,
 )
 
+# registra tus rutas si aplica
 app.register_blueprint(main)
 
 # Diagnóstico: crea tablas y muestra cuáles ve
