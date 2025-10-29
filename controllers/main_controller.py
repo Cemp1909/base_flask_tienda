@@ -1,12 +1,14 @@
 # controllers/main_controller.py
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, jsonify
 from functools import wraps
+import random, time, string, os
 
-from models import db, Blusa, Bluson, Vestido, Enterizo, Jean, VestidoGala, Compra, Usuario, Transaction
-import random, time, string
+from models import db, Compra, Transaction  # Modelos que sigues usando directamente
+from services.facade import TiendaFacade     # ✅ Fachada (Facade)
+from services.abstract_factory import VeranoFactory, InviernoFactory  # ✅ Abstract Factory (uso opcional en /conjunto)
 
 main = Blueprint("main", __name__, url_prefix="")
+facade = TiendaFacade()  # ✅ instancia única de la fachada para este blueprint
 
 # -------- Helpers de auth --------
 def login_required(view):
@@ -29,16 +31,14 @@ def _mask_card(number):
 def inicio():
     return render_template("index.html")
 
-# -------- Catálogo --------
+# -------- Catálogo (HTML estático por ahora) --------
 @main.route("/blusas")
 def blusas():
     return render_template("blusas.html")
 
 @main.route("/blusones")
 def blusones():
-    # Sin DB: devolvemos un HTML estático
     return render_template("blusones.html")
-
 
 @main.route("/vestidos")
 def vestidos():
@@ -46,17 +46,14 @@ def vestidos():
 
 @main.route("/enterizos")
 def enterizos():
-    
     return render_template("enterizos.html")
 
 @main.route("/jeans")
 def jeans():
-   
     return render_template("jeans.html")
 
 @main.route("/vestidosgala")
 def vestidosgala():
-    
     return render_template("vestidosgala.html")
 
 # -------- Compra --------
@@ -74,17 +71,12 @@ def comprar():
         "Jeans": 30.00,
         "Vestidos de Gala": 80.00,
     }
-
     precio_unitario = precios.get(tipo, 0.0)
 
     return render_template(
         "formulario_compra.html",
-        talla=talla,
-        color=color,
-        tipo=tipo,
-        precio_unitario=precio_unitario
+        talla=talla, color=color, tipo=tipo, precio_unitario=precio_unitario
     )
-
 
 @main.route("/enviar_pedido", methods=["POST"])
 def enviar_pedido():
@@ -118,52 +110,49 @@ def enviar_pedido():
         flash(f"Error al procesar el pedido: {e}", "danger")
         return redirect(url_for("main.inicio"))
 
-# ===================  AUTENTICACIÓN  ===================
+# ===================  AUTENTICACIÓN  (vía FACHADA)  ===================
 
 @main.route("/crear_usuario", methods=["GET", "POST"])
 def crear_usuario():
     if request.method == "POST":
-        nombre_usuario = request.form.get("usuario", "").strip().lower()
-        contrasena     = request.form.get("contrasena", "")
+        usuario    = (request.form.get("usuario") or "").strip().lower()
+        email      = (request.form.get("email") or "").strip().lower()
+        contrasena = request.form.get("contrasena") or ""
+        rol        = (request.form.get("rol") or "cliente").strip().lower()
 
-        if not nombre_usuario or not contrasena:
-            flash("Usuario y contraseña son obligatorios", "danger")
+        if not usuario or not email or not contrasena:
+            flash("Usuario, email y contraseña son obligatorios.", "danger")
             return redirect(url_for("main.crear_usuario"))
 
-        if Usuario.query.filter_by(nombre_usuario=nombre_usuario).first():
-            flash("El usuario ya existe", "warning")
+        u = facade.registrar_usuario(usuario=usuario, email=email, contrasena=contrasena, rol=rol)
+        if u:
+            flash("Usuario creado. Ahora inicia sesión. ✅", "success")
+            return redirect(url_for("main.login"))
+        else:
+            flash("El usuario o el correo ya existen. ❌", "warning")
             return redirect(url_for("main.crear_usuario"))
 
-        nuevo = Usuario(
-            nombre_usuario=nombre_usuario,
-            contrasena_hash=generate_password_hash(contrasena)
-        )
-        db.session.add(nuevo)
-        db.session.commit()
-        flash("Usuario creado. Ahora inicia sesión.", "success")
-        return redirect(url_for("main.login"))
-
-    return render_template("crear.html")  # tu template de registro
+    # OJO: usa tu template real de registro; si el tuyo se llama 'crear.html', déjalo así
+    return render_template("crear_usuario.html")
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        nombre_usuario = request.form.get("usuario", "").strip().lower()
-        contrasena     = request.form.get("contrasena", "")
+        usuario_o_email = (request.form.get("usuario") or "").strip().lower()
+        contrasena      = request.form.get("contrasena") or ""
 
-        usuario = Usuario.query.filter_by(nombre_usuario=nombre_usuario).first()
-        if usuario and check_password_hash(usuario.contrasena_hash, contrasena):
-            # ✅ Guardar sesión
-            session["user_id"]  = usuario.id
-            session["username"] = usuario.nombre_usuario
+        u = facade.iniciar_sesion(usuario_o_email, contrasena)
+        if u:
+            session["user_id"]  = u.id
+            session["username"] = u.nombre_usuario
             flash("Has iniciado sesión correctamente ✅", "success")
-            return redirect(url_for("main.inicio"))  # Redirige al panel principal o página protegida
+            return redirect(url_for("main.inicio"))
 
-        # ❌ Si el usuario o contraseña no son válidos
         flash("Usuario o contraseña incorrectos ❌", "danger")
         return redirect(url_for("main.login"))
 
-    return render_template("inicio.html")  # tu template de login
+    # IMPORTANTE: muestra el formulario de login (no 'inicio.html')
+    return render_template("inicio.html")
 
 @main.route("/logout")
 @login_required
@@ -181,6 +170,7 @@ def dashboard():
 
 @main.route("/init-db")
 def init_db():
+    """Solo desarrollo: crea tablas si no existen."""
     db.create_all()
     return "Tablas creadas correctamente ✅"
 
@@ -236,86 +226,99 @@ def db_check():
     except Exception as e:
         return f"DB ERROR: {type(e).__name__}: {e}", 500
 
+# ===================  ABSTRACT FACTORY: Conjuntos por temporada  ===================
 
-# --- RUTA TEMPORAL PARA SEMILLAR DATOS ---
-import os
-from flask import jsonify
+@main.route("/conjunto", methods=["POST"])
+@login_required
+def crear_conjunto_temporada():
+    """
+    Crea un conjunto de prendas coherente según la temporada usando Abstract Factory.
+    Form POST esperado: temporada (verano|invierno), talla, color, tipo, imagen?, stock?
+    """
+    temporada = (request.form.get("temporada") or "verano").strip().lower()
+    datos = {
+        "talla":  request.form.get("talla"),
+        "color":  request.form.get("color"),
+        "tipo":   request.form.get("tipo"),
+        "imagen": request.form.get("imagen"),
+        "stock":  int(request.form.get("stock", 0) or 0),
+    }
 
+    # Puedes usar la fachada para persistir en bloque
+    from services.abstract_factory import crear_conjunto
+    factory = VeranoFactory() if temporada == "verano" else InviernoFactory()
+    prendas = crear_conjunto(factory, **datos)
+    db.session.add_all(prendas)
+    db.session.commit()
+
+    flash(f"Conjunto de {temporada} creado con {len(prendas)} prendas ✅", "success")
+    return redirect(url_for("main.inicio"))
+
+# --- RUTA TEMPORAL PARA SEMILLAR DATOS (usa tus modelos originales) ---
 @main.route("/seed")
 def seed():
-    # Protección simple: llámala como /seed?key=tu_clave
     key = request.args.get("key")
     if key != os.getenv("SEED_KEY", "dev"):
         return "Forbidden", 403
 
     inserted = {}
+    # Puedes añadir 'stock' si tus tablas lo tienen
+    from models import Blusa, Bluson, Vestido, Enterizo, Jean, VestidoGala
 
-    # -------- BLUSONES (como tu captura) --------
     blusones = [
-        {"talla": "XL", "color": "Rosado",         "tipo": "Blusones", "imagen": "imagen17.jpeg"},
-        {"talla": "XL", "color": "Salmon",         "tipo": "Blusones", "imagen": "imagen15.jpeg"},
-        {"talla": "XL", "color": "Blanco y Negro", "tipo": "Blusones", "imagen": "imagen18.jpeg"},
-        {"talla": "XL", "color": "Gris",           "tipo": "Blusones", "imagen": "imagen16.jpeg"},
-        {"talla": "L",  "color": "Rosado",         "tipo": "Blusones", "imagen": "imagen17.jpeg"},
-        {"talla": "M",  "color": "Salmon",         "tipo": "Blusones", "imagen": "imagen15.jpeg"},
+        {"talla": "XL", "color": "Rosado",         "tipo": "Blusones", "imagen": "imagen17.jpeg", "stock": 5},
+        {"talla": "XL", "color": "Salmon",         "tipo": "Blusones", "imagen": "imagen15.jpeg", "stock": 4},
+        {"talla": "XL", "color": "Blanco y Negro", "tipo": "Blusones", "imagen": "imagen18.jpeg", "stock": 3},
+        {"talla": "XL", "color": "Gris",           "tipo": "Blusones", "imagen": "imagen16.jpeg", "stock": 2},
+        {"talla": "L",  "color": "Rosado",         "tipo": "Blusones", "imagen": "imagen17.jpeg", "stock": 2},
+        {"talla": "M",  "color": "Salmon",         "tipo": "Blusones", "imagen": "imagen15.jpeg", "stock": 2},
     ]
-    for d in blusones:
-        db.session.add(Bluson(**d))
+    for d in blusones: db.session.add(Bluson(**d))
     inserted["blusones"] = len(blusones)
 
-    # -------- BLUSAS --------
     blusas = [
-        {"talla": "S", "color": "Negro",  "tipo": "Blusas", "imagen": "blusa1.jpeg"},
-        {"talla": "M", "color": "Blanco", "tipo": "Blusas", "imagen": "blusa2.jpeg"},
-        {"talla": "L", "color": "Rojo",   "tipo": "Blusas", "imagen": "blusa3.jpeg"},
-        {"talla": "XL","color": "Azul",   "tipo": "Blusas", "imagen": "blusa4.jpeg"},
+        {"talla": "S", "color": "Negro",  "tipo": "Blusas", "imagen": "blusa1.jpeg", "stock": 10},
+        {"talla": "M", "color": "Blanco", "tipo": "Blusas", "imagen": "blusa2.jpeg", "stock": 8},
+        {"talla": "L", "color": "Rojo",   "tipo": "Blusas", "imagen": "blusa3.jpeg", "stock": 6},
+        {"talla": "XL","color": "Azul",   "tipo": "Blusas", "imagen": "blusa4.jpeg", "stock": 4},
     ]
-    for d in blusas:
-        db.session.add(Blusa(**d))
+    for d in blusas: db.session.add(Blusa(**d))
     inserted["blusas"] = len(blusas)
 
-    # -------- VESTIDOS --------
     vestidos = [
-        {"talla": "S", "color": "Negro",  "tipo": "Vestidos", "imagen": "vestido1.jpeg"},
-        {"talla": "M", "color": "Rojo",   "tipo": "Vestidos", "imagen": "vestido2.jpeg"},
-        {"talla": "L", "color": "Azul",   "tipo": "Vestidos", "imagen": "vestido3.jpeg"},
-        {"talla": "XL","color": "Verde",  "tipo": "Vestidos", "imagen": "vestido4.jpeg"},
+        {"talla": "S", "color": "Negro",  "tipo": "Vestidos", "imagen": "vestido1.jpeg", "stock": 7},
+        {"talla": "M", "color": "Rojo",   "tipo": "Vestidos", "imagen": "vestido2.jpeg", "stock": 7},
+        {"talla": "L", "color": "Azul",   "tipo": "Vestidos", "imagen": "vestido3.jpeg", "stock": 5},
+        {"talla": "XL","color": "Verde",  "tipo": "Vestidos", "imagen": "vestido4.jpeg", "stock": 3},
     ]
-    for d in vestidos:
-        db.session.add(Vestido(**d))
+    for d in vestidos: db.session.add(Vestido(**d))
     inserted["vestidos"] = len(vestidos)
 
-    # -------- ENTERIZOS --------
     enterizos = [
-        {"talla": "S", "color": "Beige",  "tipo": "Enterizos", "imagen": "enterizo1.jpeg"},
-        {"talla": "M", "color": "Negro",  "tipo": "Enterizos", "imagen": "enterizo2.jpeg"},
-        {"talla": "L", "color": "Mostaza","tipo": "Enterizos", "imagen": "enterizo3.jpeg"},
-        {"talla": "XL","color": "Gris",   "tipo": "Enterizos", "imagen": "enterizo4.jpeg"},
+        {"talla": "S", "color": "Beige",  "tipo": "Enterizos", "imagen": "enterizo1.jpeg", "stock": 5},
+        {"talla": "M", "color": "Negro",  "tipo": "Enterizos", "imagen": "enterizo2.jpeg", "stock": 5},
+        {"talla": "L", "color": "Mostaza","tipo": "Enterizos", "imagen": "enterizo3.jpeg", "stock": 4},
+        {"talla": "XL","color": "Gris",   "tipo": "Enterizos", "imagen": "enterizo4.jpeg", "stock": 3},
     ]
-    for d in enterizos:
-        db.session.add(Enterizo(**d))
+    for d in enterizos: db.session.add(Enterizo(**d))
     inserted["enterizos"] = len(enterizos)
 
-    # -------- JEANS --------
     jeans = [
-        {"talla": "30", "color": "Azul",     "tipo": "Jeans", "imagen": "jean1.jpeg"},
-        {"talla": "32", "color": "Azul Claro","tipo": "Jeans", "imagen": "jean2.jpeg"},
-        {"talla": "34", "color": "Negro",    "tipo": "Jeans", "imagen": "jean3.jpeg"},
-        {"talla": "36", "color": "Gris",     "tipo": "Jeans", "imagen": "jean4.jpeg"},
+        {"talla": "30", "color": "Azul",      "tipo": "Jeans", "imagen": "jean1.jpeg", "stock": 9},
+        {"talla": "32", "color": "Azul Claro","tipo": "Jeans", "imagen": "jean2.jpeg", "stock": 8},
+        {"talla": "34", "color": "Negro",     "tipo": "Jeans", "imagen": "jean3.jpeg", "stock": 6},
+        {"talla": "36", "color": "Gris",      "tipo": "Jeans", "imagen": "jean4.jpeg", "stock": 4},
     ]
-    for d in jeans:
-        db.session.add(Jean(**d))
+    for d in jeans: db.session.add(Jean(**d))
     inserted["jeans"] = len(jeans)
 
-    # -------- VESTIDOS DE GALA --------
     vestidosgala = [
-        {"talla": "S",  "color": "Rojo",    "tipo": "VestidosGala", "imagen": "gala1.jpeg"},
-        {"talla": "M",  "color": "Negro",   "tipo": "VestidosGala", "imagen": "gala2.jpeg"},
-        {"talla": "L",  "color": "Dorado",  "tipo": "VestidosGala", "imagen": "gala3.jpeg"},
-        {"talla": "XL", "color": "Verde",   "tipo": "VestidosGala", "imagen": "gala4.jpeg"},
+        {"talla": "S",  "color": "Rojo",   "tipo": "VestidosGala", "imagen": "gala1.jpeg", "stock": 2},
+        {"talla": "M",  "color": "Negro",  "tipo": "VestidosGala", "imagen": "gala2.jpeg", "stock": 2},
+        {"talla": "L",  "color": "Dorado", "tipo": "VestidosGala", "imagen": "gala3.jpeg", "stock": 2},
+        {"talla": "XL", "color": "Verde",  "tipo": "VestidosGala", "imagen": "gala4.jpeg", "stock": 2},
     ]
-    for d in vestidosgala:
-        db.session.add(VestidoGala(**d))
+    for d in vestidosgala: db.session.add(VestidoGala(**d))
     inserted["vestidosgala"] = len(vestidosgala)
 
     db.session.commit()
